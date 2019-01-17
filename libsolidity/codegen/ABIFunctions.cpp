@@ -322,7 +322,7 @@ string ABIFunctions::conversionFunction(Type const& _from, Type const& _to)
 				solAssert(_from.mobileType(), "");
 				body =
 					Whiskers("converted := <cleanEnum>(<cleanInt>(value))")
-					("cleanEnum", cleanupFunction(_to, false))
+					("cleanEnum", cleanupFunction(_to))
 					// "mobileType()" returns integer type for rational
 					("cleanInt", cleanupFunction(*_from.mobileType()))
 					.render();
