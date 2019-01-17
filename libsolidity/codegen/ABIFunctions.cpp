@@ -280,7 +280,7 @@ string ABIFunctions::validatorFunction(Type const& _type, bool _revertOnFailure)
 		switch (_type.category())
 		{
 		case Type::Category::Address:
-			templ("body", "cleaned := " + cleanupFunction(IntegerType(160)) + "(value)");
+			templ("body", "cleaned := " + validatorFunction(IntegerType(160), _revertOnFailure) + "(value)");
 			break;
 		case Type::Category::Integer:
 		{
@@ -329,7 +329,7 @@ string ABIFunctions::validatorFunction(Type const& _type, bool _revertOnFailure)
 				StateMutability::Payable :
 				StateMutability::NonPayable
 			);
-			templ("body", "cleaned := " + cleanupFunction(addressType) + "(value)");
+			templ("body", "cleaned := " + validatorFunction(addressType, _revertOnFailure) + "(value)");
 			break;
 		}
 		case Type::Category::Enum:
