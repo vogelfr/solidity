@@ -50,6 +50,7 @@
 #include <libyul/optimiser/SSATransform.h>
 #include <libyul/optimiser/StructuralSimplifier.h>
 #include <libyul/optimiser/VarDeclInitializer.h>
+#include <libyul/optimiser/VarNameCleaner.h>
 
 #include <libyul/backends/evm/EVMDialect.h>
 
@@ -122,13 +123,14 @@ public:
 				return;
 			if (!disambiguated)
 			{
+				cout << "Disambiguating.\n";
 				*m_ast = boost::get<yul::Block>(Disambiguator(*m_dialect, *m_analysisInfo)(*m_ast));
 				m_analysisInfo.reset();
 				m_nameDispenser = make_shared<NameDispenser>(*m_dialect, *m_ast);
 				disambiguated = true;
 			}
 			cout << "(q)quit/(f)flatten/(c)se/initialize var(d)ecls/(x)plit/(j)oin/(g)rouper/(h)oister/" << endl;
-			cout << "  (e)xpr inline/(i)nline/(s)implify/(u)nusedprune/ss(a) transform/" << endl;
+			cout << "  (e)xpr inline/(i)nline/(s)implify/varname c(l)eaner/(u)nusedprune/ss(a) transform/" << endl;
 			cout << "  (r)edundant assign elim./re(m)aterializer/f(o)r-loop-pre-rewriter/" << endl;
 			cout << "  s(t)ructural simplifier/equi(v)alent function combiner/ssa re(V)erser? " << endl;
 			cout.flush();
@@ -149,6 +151,9 @@ public:
 				break;
 			case 'd':
 				(VarDeclInitializer{})(*m_ast);
+				break;
+			case 'l':
+				VarNameCleaner{}(*m_ast);
 				break;
 			case 'x':
 				ExpressionSplitter{*m_dialect, *m_nameDispenser}(*m_ast);
@@ -209,6 +214,10 @@ private:
 
 int main(int argc, char** argv)
 {
+#if defined(_WIN32) && !defined(_NDEBUG) // help me debuggin in VS
+	atexit([]() { system("pause"); });
+#endif
+
 	po::options_description options(
 		R"(yulopti, yul optimizer exploration tool.
 Usage: yulopti [Options] <file>
